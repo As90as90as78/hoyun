@@ -1,0 +1,260 @@
+using System;
+using System.Numerics;
+using System.Collections.Generic;
+using System.Linq;
+using System.Media;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TextRPG
+{
+    class Program
+    {
+
+        enum JabType
+        {
+            None = 0,
+            Barbarian = 1,
+            Druid = 2,
+            Wizard = 3,
+            Thief = 4
+        }
+        struct Player
+        {
+            public int hp;
+            public int attack;
+        }
+
+        enum MonsterType
+        {
+            None = 0,
+            Skull = 1,
+            vampire = 2,
+            ghoul = 3,
+            Katsura = 4
+        }
+        struct Monster
+        {
+            public int hp;
+            public int attack;
+        }
+
+
+        static void Main(string[] args)
+        {
+            JabType playerjab = JabType.None;
+
+            while (true)
+            {
+                playerjab = ChoiceClass();
+
+                if (playerjab != JabType.None)
+                {
+                    Player player;
+                    CreaterPlayer(playerjab, out player);
+
+                    Console.WriteLine($"HP: {player.hp}  \nAttack: {player.attack}\n\n");
+
+                    Game(ref player);
+                }
+            }
+        }
+
+
+        // 직업 선택
+        static JabType ChoiceClass()
+        {
+            Console.WriteLine("직업 선택:");
+            Console.WriteLine("[1] 야만전사");
+            Console.WriteLine("[2] 드루이드");
+            Console.WriteLine("[3] 기상술사");
+            Console.WriteLine("[4] 도적");
+
+            JabType jab = JabType.None;
+
+            string choice = Console.ReadLine();
+
+            switch (choice)
+            {
+                case "1":
+                    jab = JabType.Barbarian;
+                    Console.WriteLine("야만전사를 선택했습니다.");
+                    break;
+
+                case "2":
+                    jab = JabType.Druid;
+                    Console.WriteLine("드루이드를 선택했습니다.");
+                    break;
+
+                case "3":
+                    jab = JabType.Wizard;
+                    Console.WriteLine("기상술사를 선택했습니다.");
+                    break;
+
+                case "4":
+                    jab = JabType.Thief;
+                    Console.WriteLine("도적을 선택했습니다.");
+                    break;
+
+                default:
+                    Console.WriteLine("잘못된 선택입니다. 다시 선택해주세요.");
+                    break;
+            }
+            return jab;
+        }
+
+        // 직업 특성
+        static void CreaterPlayer(JabType choice, out Player player)
+        {
+            switch(choice)
+            {
+                case JabType.Barbarian:
+                    player.hp = 100;
+                    player.attack = 30;
+                    break;
+
+                case JabType.Druid:
+                    player.hp = 120;
+                    player.attack = 25;
+                    break;
+
+                case JabType.Wizard:
+                    player.hp = 40;
+                    player.attack = 60;
+                    break;
+
+                case JabType.Thief:
+                    player.hp = 75;
+                    player.attack = 40;
+                    break;
+                default:
+                    player.hp = 0;
+                    player.attack = 0;
+                    break;
+            }
+        }
+
+        // 랜덤 몬스터 생성
+        private static void CreateRandomMonster(out Monster monster)
+        {
+            Random rand = new Random();
+            int randMonster = rand.Next(1, 5); // 1부터 4까지의 랜덤 숫자 생성
+
+            switch (randMonster)
+            {
+                case (int)MonsterType.Skull:
+                    Console.WriteLine("해골이 등장하였습니다!");
+                    monster.hp = 30;
+                    monster.attack = 10;
+                    Console.WriteLine($"HP: {monster.hp} Attack:{monster.attack}");
+                    break;
+                case (int)MonsterType.vampire:
+                    Console.WriteLine("뱀파이어가 등장하였습니다!");
+                    monster.hp = 60;
+                    monster.attack = 20;
+                    Console.WriteLine($"HP: {monster.hp} Attack:{monster.attack}");
+                    break;
+                case (int)MonsterType.ghoul:
+                    Console.WriteLine("구울이 등장하였습니다!");
+                    monster.hp = 50;
+                    monster.attack = 30;
+                    Console.WriteLine($"HP: {monster.hp} Attack:{monster.attack}");
+                    break;
+                case (int)MonsterType.Katsura:
+                    Console.WriteLine("카츠라가 등장하였습니다!");
+                    monster.hp = 100;
+                    monster.attack = 25;
+                    Console.WriteLine($"HP: {monster.hp} Attack:{monster.attack}");
+                    break;
+                default:
+                    monster.hp = 0;
+                    monster.attack = 0;
+                    Console.WriteLine($"HP: {monster.hp} Attack:{monster.attack}");
+                    break;
+            }
+        }
+
+        // 마을 선택지
+        static void Game(ref Player player)
+        {
+            while (true)
+            {
+                Console.WriteLine("마을 에 도착했습니다.");
+                Console.WriteLine("[1] 메마른 평원으로 간다.");
+                Console.WriteLine("[2] 로비로 간다.(end)");
+
+                string input = Console.ReadLine();
+                if(input == "1")
+                {
+                    EnterField(ref player);
+                }
+                else if(input == "2")
+                {
+                    break;
+                }
+            }
+        }
+
+        // 싸운다 or 도주
+        static void EnterField(ref Player player)
+        {
+            Console.WriteLine("당신은 메마른 평원으로 향하였습니다.");
+            while (true)
+            {
+                // 랜덤 몬스터 하나 스폰
+                Monster monster;
+                CreateRandomMonster(out monster);
+
+                Console.WriteLine("[1] 싸운다.");
+                Console.WriteLine("[2] 도망간다.");
+
+                string input = Console.ReadLine();
+                if(input == "1")
+                {
+                    Fight(ref player, ref monster);
+                }
+                else if (input == "2")
+                {
+                    //33%
+                    Random rand = new Random();
+                    int randreturn = rand.Next(0, 101);
+                    if(randreturn <= 33)
+                    {
+                        Console.WriteLine("도주에 성공했습니다!(end).");
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("도주에 실패했습니다!(end).");
+                        Fight(ref player, ref monster);
+                    }
+                }
+            }
+        }
+
+        // 싸운다
+        static void Fight(ref Player player, ref Monster monster)
+        {
+            // 플레이어 선
+            while(true)
+            {
+                monster.hp -= player.attack;
+                if (monster.hp <= 0)
+                {
+                    Console.WriteLine("승리하였습니다.");
+                    Console.WriteLine($"남은 채력 : {player.hp}\n");
+                    break;
+                }
+                // 몬스터 반격
+                player.hp -= monster.attack;
+                if (player.hp <= 0)
+                {
+                    Console.WriteLine("YOU DIE");
+                    break;
+                }
+            }
+        }
+
+    }
+}
